@@ -1,17 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { findUserByEmail } from '@/lib/userStore';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
-// In-memory user store (same as signup)
-let users = [
-  {
-    id: '1',
-    fullName: 'Demo User',
-    email: 'demo@example.com',
-    company: 'Demo Company',
-    password: 'demo123', // In production, compare hashed passwords
-  },
-];
 
 export async function POST(request) {
   try {
@@ -23,7 +13,7 @@ export async function POST(request) {
     }
 
     // Find user
-    const user = users.find((u) => u.email === email);
+    const user = findUserByEmail(email);
 
     if (!user || user.password !== password) {
       return Response.json({ error: 'Invalid email or password' }, { status: 401 });

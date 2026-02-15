@@ -1,17 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { userExists, addUser } from '@/lib/userStore';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
-// In-memory user store (replace with database in production)
-let users = [
-  {
-    id: '1',
-    fullName: 'Demo User',
-    email: 'demo@example.com',
-    company: 'Demo Company',
-    password: '$2b$10$YourHashedPasswordHere', // demo123
-  },
-];
 
 export async function POST(request) {
   try {
@@ -23,7 +13,7 @@ export async function POST(request) {
     }
 
     // Check if user already exists
-    if (users.some((u) => u.email === email)) {
+    if (userExists(email)) {
       return Response.json({ error: 'Email already registered' }, { status: 400 });
     }
 
@@ -33,10 +23,10 @@ export async function POST(request) {
       fullName,
       email,
       company,
-      password, // In production, hash this with bcryptjs
+      password,
     };
 
-    users.push(newUser);
+    addUser(newUser);
 
     // Create JWT token
     const token = jwt.sign(
